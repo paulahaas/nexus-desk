@@ -1,0 +1,74 @@
+{% load ticket_extras %}
+{% if page_obj.object_list %}
+<div class="card overflow-hidden">
+    <table class="hidden w-full text-left text-sm md:table">
+        <thead class="border-b border-border bg-surface-2/50 text-xs uppercase tracking-wide text-text-faint">
+            <tr>
+                <th class="px-4 py-2.5 font-medium">ID</th>
+                <th class="px-4 py-2.5 font-medium">Título</th>
+                <th class="px-4 py-2.5 font-medium">Solicitante</th>
+                <th class="px-4 py-2.5 font-medium">Categoria</th>
+                <th class="px-4 py-2.5 font-medium">Prioridade</th>
+                <th class="px-4 py-2.5 font-medium">Status</th>
+                <th class="px-4 py-2.5 font-medium">Responsável</th>
+                <th class="px-4 py-2.5 font-medium">SLA</th>
+                {% if can_manage_queue %}<th class="px-4 py-2.5"></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+            {% for ticket in page_obj %}
+            <tr data-ticket-row data-assume-url="{% url 'tickets:assume' ticket.pk %}" class="transition-colors">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-text-dim">{{ ticket.readable_id }}</td>
+                <td class="max-w-[280px] truncate px-4 py-2.5 text-text">{{ ticket.title }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-text-dim">{{ ticket.requester|display_name }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-text-dim">{{ ticket.category.name|default:"—" }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5"><span class="badge {{ ticket.priority|priority_badge }}">{{ ticket.get_priority_display }}</span></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><span class="badge {{ ticket.status|status_badge }}">{{ ticket.get_status_display }}</span></td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-text-dim">{{ ticket.assignee|display_name }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5">{% include "tickets/partials/sla_badge.html" with sla=ticket.sla %}</td>
+                {% if can_manage_queue %}
+                <td class="whitespace-nowrap px-4 py-2.5 text-right">
+                    {% if ticket.assignee_id != request.user.id %}
+                    <button
+                        hx-post="{% url 'tickets:assume' ticket.pk %}"
+                        class="rounded-[var(--radius-control)] border border-border px-2 py-1 text-xs text-text-dim transition-colors hover:border-accent hover:text-accent"
+                    >Assumir</button>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="divide-y divide-border md:hidden">
+        {% for ticket in page_obj %}
+        <div data-ticket-row data-assume-url="{% url 'tickets:assume' ticket.pk %}" class="flex flex-col gap-2 p-4">
+            <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-text-faint">{{ ticket.readable_id }}</span>
+                {% include "tickets/partials/sla_badge.html" with sla=ticket.sla %}
+            </div>
+            <p class="text-sm font-medium text-text">{{ ticket.title }}</p>
+            <div class="flex flex-wrap items-center gap-1.5">
+                <span class="badge {{ ticket.priority|priority_badge }}">{{ ticket.get_priority_display }}</span>
+                <span class="badge {{ ticket.status|status_badge }}">{{ ticket.get_status_display }}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-text-faint">
+                <span>{{ ticket.requester|display_name }}</span>
+                <span>{{ ticket.assignee|display_name }}</span>
+            </div>
+            {% if can_manage_queue and ticket.assignee_id != request.user.id %}
+            <button
+                hx-post="{% url 'tickets:assume' ticket.pk %}"
+                class="mt-1 rounded-[var(--radius-control)] border border-border py-1.5 text-xs text-text-dim transition-colors hover:border-accent hover:text-accent"
+            >Assumir</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include "tickets/partials/pagination.html" %}
+{% else %}
+{% include "tickets/partials/empty_state.html" %}
+{% endif %}

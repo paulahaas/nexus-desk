@@ -1,0 +1,7 @@
+{% load ticket_extras %}
+<div class="inline-flex items-center gap-1.5" title="{{ sla.deadline|date:'d/m H:i' }}">
+    <span class="h-1.5 w-1.5 shrink-0 rounded-full {{ sla.state|sla_dot }}"></span>
+    <span class="badge font-mono {{ sla.state|sla_badge }}">
+        {% if sla.is_paused %}pausado{% elif sla.state == "RED" %}vencido{% else %}{{ sla.percent_consumed|floatformat:0 }}%{% endif %}
+    </span>
+</div>

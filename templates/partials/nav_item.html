@@ -10,9 +10,9 @@
 <a
     href="{% url href_name %}"
     class="flex items-center gap-3 overflow-hidden rounded-[var(--radius-control)] px-2 py-2 text-sm text-text-dim transition-colors hover:bg-surface-2 hover:text-text
-           {% if request.resolver_match.url_name == href_name %}bg-accent-dim text-accent{% endif %}"
+           {% if request.resolver_match.view_name == href_name %}bg-accent-dim text-accent{% endif %}"
 >
-    <span class="h-2 w-2 shrink-0 rounded-full {% if request.resolver_match.url_name == href_name %}bg-accent{% else %}bg-text-faint{% endif %}"></span>
+    <span class="h-2 w-2 shrink-0 rounded-full {% if request.resolver_match.view_name == href_name %}bg-accent{% else %}bg-text-faint{% endif %}"></span>
     <span x-show="!collapsed" x-cloak class="min-w-0 flex-1 truncate whitespace-nowrap">{{ label }}</span>
 </a>
 {% endif %}

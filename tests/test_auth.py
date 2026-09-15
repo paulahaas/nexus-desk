@@ -91,7 +91,7 @@ class TestDemoLogin:
         response = client.post(reverse("demo_login", kwargs={"role": "admin"}))
 
         assert response.status_code == 302
-        assert response.url == reverse("home")
+        assert response.url == reverse("tickets:queue")
         home = client.get(reverse("home"))
         assert home.wsgi_request.user.username == "admin"
 

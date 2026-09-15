@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 
 from accounts.models import User
 
@@ -15,8 +15,8 @@ DEMO_ACCOUNTS = {
 
 @login_required
 def home(request):
-    """Placeholder pós-login. Vira a fila de chamados na etapa "fila e detalhe"."""
-    return render(request, "accounts/home.html")
+    """Entrada estável em "/": manda pra fila, hoje a página pós-login real."""
+    return redirect("tickets:queue")
 
 
 def demo_login(request, role):
@@ -28,4 +28,4 @@ def demo_login(request, role):
 
     user = get_object_or_404(User, username=DEMO_ACCOUNTS[role])
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    return redirect("home")
+    return redirect("tickets:queue")

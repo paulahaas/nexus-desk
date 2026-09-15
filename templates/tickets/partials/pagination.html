@@ -1,0 +1,22 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="mt-4 flex items-center justify-between text-xs text-text-dim">
+    <span>{{ page_obj.paginator.count }} chamado{{ page_obj.paginator.count|pluralize }}</span>
+    <div class="flex items-center gap-1">
+        {% if page_obj.has_previous %}
+        <button
+            hx-get="{% url 'tickets:queue' %}?{{ querystring }}&page={{ page_obj.previous_page_number }}"
+            hx-target="#queue-results" hx-push-url="true"
+            class="rounded-[var(--radius-control)] border border-border px-2.5 py-1 transition-colors hover:border-accent hover:text-accent"
+        >Anterior</button>
+        {% endif %}
+        <span class="px-2 font-mono">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <button
+            hx-get="{% url 'tickets:queue' %}?{{ querystring }}&page={{ page_obj.next_page_number }}"
+            hx-target="#queue-results" hx-push-url="true"
+            class="rounded-[var(--radius-control)] border border-border px-2.5 py-1 transition-colors hover:border-accent hover:text-accent"
+        >Próxima</button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

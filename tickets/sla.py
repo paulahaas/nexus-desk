@@ -33,12 +33,16 @@ class SLAStatus:
     is_paused: bool
 
 
-def _business_hours_map() -> dict[int, tuple[datetime.time, datetime.time]]:
+def business_hours_map() -> dict[int, tuple[datetime.time, datetime.time]]:
     return {bh.weekday: (bh.start_time, bh.end_time) for bh in BusinessHours.objects.all()}
 
 
-def _holiday_set() -> set[datetime.date]:
+def holiday_set() -> set[datetime.date]:
     return set(Holiday.objects.values_list("date", flat=True))
+
+
+def sla_policy_map() -> dict[str, SLAPolicy]:
+    return {policy.priority: policy for policy in SLAPolicy.objects.all()}
 
 
 def business_minutes_between(
@@ -51,9 +55,9 @@ def business_minutes_between(
     if start is None or end is None or start >= end:
         return 0.0
     if hours_map is None:
-        hours_map = _business_hours_map()
+        hours_map = business_hours_map()
     if holidays is None:
-        holidays = _holiday_set()
+        holidays = holiday_set()
 
     tz = timezone.get_current_timezone()
     local_start = timezone.localtime(start, tz)
@@ -87,9 +91,9 @@ def add_business_minutes(
 ) -> datetime.datetime:
     """Retorna o instante `minutes` minutos úteis à frente de `start`."""
     if hours_map is None:
-        hours_map = _business_hours_map()
+        hours_map = business_hours_map()
     if holidays is None:
-        holidays = _holiday_set()
+        holidays = holiday_set()
 
     tz = timezone.get_current_timezone()
     remaining = datetime.timedelta(minutes=minutes)
@@ -147,9 +151,17 @@ def _paused_business_minutes(
     return total
 
 
-def _evaluate(ticket: Ticket, target_minutes: int, until: datetime.datetime) -> SLAStatus:
-    hours_map = _business_hours_map()
-    holidays = _holiday_set()
+def _evaluate(
+    ticket: Ticket,
+    target_minutes: int,
+    until: datetime.datetime,
+    hours_map: dict | None = None,
+    holidays: set | None = None,
+) -> SLAStatus:
+    if hours_map is None:
+        hours_map = business_hours_map()
+    if holidays is None:
+        holidays = holiday_set()
 
     paused_minutes = _paused_business_minutes(ticket, until, hours_map, holidays)
     elapsed_minutes = (
@@ -177,13 +189,35 @@ def _evaluate(ticket: Ticket, target_minutes: int, until: datetime.datetime) -> 
     )
 
 
-def first_response_sla(ticket: Ticket, sla_policy: SLAPolicy | None = None) -> SLAStatus:
+def first_response_sla(
+    ticket: Ticket,
+    sla_policy: SLAPolicy | None = None,
+    hours_map: dict | None = None,
+    holidays: set | None = None,
+) -> SLAStatus:
     policy = sla_policy or SLAPolicy.objects.get(priority=ticket.priority)
     until = ticket.first_response_at or timezone.now()
-    return _evaluate(ticket, policy.first_response_minutes, until)
+    return _evaluate(ticket, policy.first_response_minutes, until, hours_map, holidays)
 
 
-def resolution_sla(ticket: Ticket, sla_policy: SLAPolicy | None = None) -> SLAStatus:
+def resolution_sla(
+    ticket: Ticket,
+    sla_policy: SLAPolicy | None = None,
+    hours_map: dict | None = None,
+    holidays: set | None = None,
+) -> SLAStatus:
     policy = sla_policy or SLAPolicy.objects.get(priority=ticket.priority)
     until = ticket.resolved_at or timezone.now()
-    return _evaluate(ticket, policy.resolution_minutes, until)
+    return _evaluate(ticket, policy.resolution_minutes, until, hours_map, holidays)
+
+
+def active_sla(
+    ticket: Ticket,
+    sla_policy: SLAPolicy | None = None,
+    hours_map: dict | None = None,
+    holidays: set | None = None,
+) -> SLAStatus:
+    """SLA que importa agora: 1ª resposta se ainda não respondeu, senão resolução."""
+    if ticket.first_response_at is None:
+        return first_response_sla(ticket, sla_policy, hours_map, holidays)
+    return resolution_sla(ticket, sla_policy, hours_map, holidays)

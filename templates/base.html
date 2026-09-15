@@ -21,7 +21,7 @@
             </div>
 
             <nav class="flex-1 space-y-1 px-3 py-2">
-                {% include "partials/nav_item.html" with label="Chamados" href_name="home" disabled=True %}
+                {% include "partials/nav_item.html" with label="Chamados" href_name="tickets:queue" %}
                 {% include "partials/nav_item.html" with label="Base de conhecimento" disabled=True %}
                 {% if user.is_agent or user.is_admin_role %}
                     {% include "partials/nav_item.html" with label="Inventário" disabled=True %}
@@ -77,5 +77,6 @@
     </div>
 
     {% include "partials/toasts.html" %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

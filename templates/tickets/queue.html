@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static ticket_extras %}
+{% block title %}Chamados — Nexus Desk{% endblock %}
+{% block page_title %}Chamados{% endblock %}
+
+{% block content %}
+<form
+    hx-get="{% url 'tickets:queue' %}"
+    hx-target="#queue-results"
+    hx-push-url="true"
+    hx-trigger="change, input changed delay:300ms from:#queue-search, submit"
+    class="mb-4 flex flex-wrap items-center gap-2"
+>
+    <div class="relative min-w-[220px] flex-1">
+        <input
+            type="search" id="queue-search" name="q" value="{{ request.GET.q }}"
+            placeholder="Buscar (pressione /)"
+            class="w-full !py-1.5 pl-8"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-faint">
+            <circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="M21 21l-4.3-4.3" />
+        </svg>
+    </div>
+
+    <select name="status" class="!w-auto !py-1.5 text-xs">
+        <option value="">Status</option>
+        {% for value, display in status_choices %}
+        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="priority" class="!w-auto !py-1.5 text-xs">
+        <option value="">Prioridade</option>
+        {% for value, display in priority_choices %}
+        <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="category" class="!w-auto !py-1.5 text-xs">
+        <option value="">Categoria</option>
+        {% for category in categories %}
+        <option value="{{ category.pk }}" {% if request.GET.category == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+
+    {% if can_manage_queue %}
+    <select name="level" class="!w-auto !py-1.5 text-xs">
+        <option value="">Nível</option>
+        {% for value, display in level_choices %}
+        <option value="{{ value }}" {% if request.GET.level == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="assignee" class="!w-auto !py-1.5 text-xs">
+        <option value="">Responsável</option>
+        {% for agent in agents %}
+        <option value="{{ agent.pk }}" {% if request.GET.assignee == agent.pk|stringformat:"s" %}selected{% endif %}>{{ agent|display_name }}</option>
+        {% endfor %}
+    </select>
+
+    <label class="filter-toggle">
+        <input type="checkbox" name="mine" value="1" class="sr-only" {% if request.GET.mine == "1" %}checked{% endif %}>
+        <span>Meus</span>
+    </label>
+    <label class="filter-toggle">
+        <input type="checkbox" name="unassigned" value="1" class="sr-only" {% if request.GET.unassigned == "1" %}checked{% endif %}>
+        <span>Sem responsável</span>
+    </label>
+    {% endif %}
+
+    <label class="filter-toggle">
+        <input type="checkbox" name="risk" value="1" class="sr-only" {% if request.GET.risk == "1" %}checked{% endif %}>
+        <span>Em risco</span>
+    </label>
+
+    <select name="sort" class="!w-auto !py-1.5 text-xs">
+        {% for key, display in sort_display.items %}
+        <option value="{{ key }}" {% if current_sort == key %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<div
+    id="queue-results"
+    hx-get="{{ request.get_full_path }}"
+    hx-trigger="ticket-assumed from:body"
+    hx-target="this"
+>
+    {% include "tickets/partials/queue_results.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/queue.js' %}" defer></script>
+{% endblock %}
