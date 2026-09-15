@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Nexus Desk{% endblock %}</title>
+</head>
+<body>
+    {# Layout provisório e sem estilo — o tema escuro entra na etapa "layout base". #}
+    {% if messages %}
+        <ul>
+            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+        </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+</body>
+</html>

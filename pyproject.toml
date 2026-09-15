@@ -7,6 +7,11 @@ exclude = ["migrations"]
 select = ["E", "F", "I", "UP", "B", "DJ"]
 ignore = ["DJ001"]
 
+[tool.ruff.lint.per-file-ignores]
+# Conteúdo de demonstração (textos de macro, títulos de chamado) legitimamente
+# ultrapassa o limite de linha; não vale a pena quebrar strings por causa disso.
+"tickets/management/commands/seed_demo.py" = ["E501"]
+
 [tool.ruff.lint.isort]
 known-first-party = [
     "config",

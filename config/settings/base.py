@@ -29,9 +29,15 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    # accounts, tickets, classifier, knowledge, assets, dashboard,
-    # incidents, checklists, notifications são adicionados na etapa
-    # "modelos, auth e seed" da Fase 1.
+    "accounts",
+    "tickets",
+    "classifier",
+    "knowledge",
+    "assets",
+    "dashboard",
+    "incidents",
+    "checklists",
+    "notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -104,6 +110,11 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "accounts.User"
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
 
 # django-axes: bloqueia tentativas de login após 5 falhas por 1h.
 AXES_FAILURE_LIMIT = 5
