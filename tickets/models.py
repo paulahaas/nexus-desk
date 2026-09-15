@@ -141,6 +141,25 @@ class Ticket(models.Model):
             super().save(update_fields=["readable_id"])
 
 
+class TicketEvent(models.Model):
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="events")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    field = models.CharField(max_length=30)
+    from_value = models.CharField(max_length=255, blank=True)
+    to_value = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "evento do chamado"
+        verbose_name_plural = "eventos do chamado"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.ticket.readable_id}: {self.field} {self.from_value} → {self.to_value}"
+
+
 class Macro(models.Model):
     title = models.CharField("título", max_length=150)
     body_template = models.TextField(

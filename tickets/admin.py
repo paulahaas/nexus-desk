@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from tickets.models import BusinessHours, Category, Holiday, Macro, SLAPolicy, Ticket
+from tickets.models import BusinessHours, Category, Holiday, Macro, SLAPolicy, Ticket, TicketEvent
+
+
+class TicketEventInline(admin.TabularInline):
+    model = TicketEvent
+    extra = 0
+    can_delete = False
+    readonly_fields = ("author", "field", "from_value", "to_value", "created_at")
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Category)
@@ -39,6 +49,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ("status", "priority", "support_level", "category")
     search_fields = ("readable_id", "title", "description")
     autocomplete_fields = ("requester", "assignee", "category")
+    inlines = [TicketEventInline]
 
 
 @admin.register(Macro)
