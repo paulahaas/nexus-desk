@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    {% include "partials/head.html" %}
+</head>
+<body class="min-h-screen bg-canvas font-sans text-text antialiased">
+    <div class="flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        <div class="mb-8 flex items-center gap-2">
+            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-bright text-sm font-bold text-white">
+                N
+            </div>
+            <span class="text-lg font-semibold tracking-tight">Nexus Desk</span>
+        </div>
+        <div class="card w-full max-w-sm p-8">
+            {% include "partials/toasts.html" %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

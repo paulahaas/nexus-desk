@@ -34,5 +34,14 @@ services:
       db:
         condition: service_healthy
 
+  tailwind:
+    build:
+      context: .
+      args:
+        REQUIREMENTS_FILE: requirements-dev.txt
+    command: tailwindcss -i static/css/input.css -o static/css/output.css --watch
+    volumes:
+      - .:/app
+
 volumes:
   nexus_pgdata:

@@ -1,16 +1,81 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Nexus Desk{% endblock %}</title>
+    {% include "partials/head.html" %}
 </head>
-<body>
-    {# Layout provisório e sem estilo — o tema escuro entra na etapa "layout base". #}
-    {% if messages %}
-        <ul>
-            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-        </ul>
-    {% endif %}
-    {% block content %}{% endblock %}
+<body
+    class="min-h-screen bg-canvas font-sans text-text antialiased"
+    x-data="{ collapsed: JSON.parse(localStorage.getItem('nexus-sidebar-collapsed') || 'false') }"
+    x-effect="localStorage.setItem('nexus-sidebar-collapsed', JSON.stringify(collapsed))"
+>
+    <div class="flex min-h-screen">
+        <aside
+            :class="collapsed ? 'w-[76px]' : 'w-64'"
+            class="fixed inset-y-0 left-0 z-20 flex flex-col border-r border-border bg-surface/80 backdrop-blur-xl transition-all duration-200"
+        >
+            <div class="flex h-16 shrink-0 items-center gap-2 overflow-hidden px-5">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-bright text-sm font-bold text-white">
+                    N
+                </div>
+                <span x-show="!collapsed" x-cloak class="whitespace-nowrap font-semibold tracking-tight">Nexus Desk</span>
+            </div>
+
+            <nav class="flex-1 space-y-1 px-3 py-2">
+                {% include "partials/nav_item.html" with label="Chamados" href_name="home" disabled=True %}
+                {% include "partials/nav_item.html" with label="Base de conhecimento" disabled=True %}
+                {% if user.is_agent or user.is_admin_role %}
+                    {% include "partials/nav_item.html" with label="Inventário" disabled=True %}
+                {% endif %}
+                {% if user.is_admin_role %}
+                    {% include "partials/nav_item.html" with label="Métricas" disabled=True %}
+                {% endif %}
+            </nav>
+
+            <div class="shrink-0 border-t border-border p-3">
+                <button
+                    @click="collapsed = !collapsed"
+                    class="mb-2 flex w-full items-center gap-3 rounded-[var(--radius-control)] px-2 py-2 text-sm text-text-dim transition-colors hover:bg-surface-2 hover:text-text"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 shrink-0" :class="collapsed ? 'rotate-180' : ''">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                    </svg>
+                    <span x-show="!collapsed" x-cloak class="whitespace-nowrap">Recolher</span>
+                </button>
+
+                <div class="flex items-center gap-3 overflow-hidden rounded-[var(--radius-control)] px-2 py-2">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 font-mono text-xs font-medium text-text-dim">
+                        {{ user.first_name|first|default:user.username|first|upper }}
+                    </div>
+                    <div x-show="!collapsed" x-cloak class="min-w-0 whitespace-nowrap">
+                        <p class="truncate text-sm font-medium text-text">{{ user.get_full_name|default:user.username }}</p>
+                        <p class="text-xs text-text-faint">{{ user.get_role_display }}{% if user.support_level %} · {{ user.support_level }}{% endif %}</p>
+                    </div>
+                </div>
+
+                <form method="post" action="{% url 'logout' %}" class="mt-1">
+                    {% csrf_token %}
+                    <button type="submit" class="flex w-full items-center gap-3 rounded-[var(--radius-control)] px-2 py-2 text-sm text-text-dim transition-colors hover:bg-surface-2 hover:text-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 5v1a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span x-show="!collapsed" x-cloak class="whitespace-nowrap">Sair</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <div :class="collapsed ? 'pl-[76px]' : 'pl-64'" class="flex min-w-0 flex-1 flex-col transition-all duration-200">
+            <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center border-b border-border bg-canvas/90 px-6 backdrop-blur">
+                {% block page_header %}
+                    <h1 class="text-lg font-semibold text-text">{% block page_title %}Nexus Desk{% endblock %}</h1>
+                {% endblock %}
+            </header>
+            <main class="flex-1 p-6">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% include "partials/toasts.html" %}
 </body>
 </html>

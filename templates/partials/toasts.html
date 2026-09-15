@@ -1,0 +1,24 @@
+{% if messages %}
+<div class="fixed right-6 top-6 z-50 flex w-80 flex-col gap-2" x-data="{}">
+    {% for message in messages %}
+    <div
+        x-data="{ show: true }"
+        x-show="show"
+        x-init="setTimeout(() => show = false, 5000)"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="card flex items-start gap-3 px-4 py-3 text-sm shadow-lg
+               {% if message.tags == 'error' %}border-l-2 border-l-sla-danger
+               {% elif message.tags == 'success' %}border-l-2 border-l-sla-ok
+               {% else %}border-l-2 border-l-sla-info{% endif %}"
+    >
+        <span class="flex-1 text-text">{{ message }}</span>
+        <button @click="show = false" class="text-text-faint hover:text-text" aria-label="Fechar">✕</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

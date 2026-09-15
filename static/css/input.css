@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@source "../../templates";
+@source "../../**/templates";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Fundo em camadas: base -> superfície -> superfície elevada */
+  --color-canvas: #0a0b10;
+  --color-surface: #11131a;
+  --color-surface-2: #171a23;
+  --color-border: rgb(255 255 255 / 0.06);
+
+  --color-text: #e7e8ec;
+  --color-text-dim: #9a9caa;
+  --color-text-faint: #636578;
+
+  /* Cor de destaque única: violeta */
+  --color-accent: #7c5cff;
+  --color-accent-bright: #9b82ff;
+  --color-accent-dim: rgb(124 92 255 / 0.15);
+
+  /* Status de SLA: dessaturados, nunca berrantes */
+  --color-sla-ok: #5ead8b;
+  --color-sla-ok-dim: rgb(94 173 139 / 0.15);
+  --color-sla-warn: #d3a54d;
+  --color-sla-warn-dim: rgb(211 165 77 / 0.15);
+  --color-sla-danger: #d2716b;
+  --color-sla-danger-dim: rgb(210 113 107 / 0.15);
+  --color-sla-info: #6b93c9;
+  --color-sla-info-dim: rgb(107 147 201 / 0.15);
+
+  --radius-card: 12px;
+  --radius-control: 10px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .font-mono,
+  .tabular-nums-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    width: 100%;
+    color: var(--color-text);
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+}
+
+@layer components {
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+
+  .btn-primary {
+    background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-bright));
+    box-shadow: 0 0 0 1px rgb(124 92 255 / 0.4), 0 8px 24px -8px rgb(124 92 255 / 0.5);
+  }
+}

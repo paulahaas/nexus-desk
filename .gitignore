@@ -9,6 +9,8 @@ venv/
 
 staticfiles/
 mediafiles/
+static/css/output.css
+.bin/
 
 .pytest_cache/
 .coverage

@@ -1,5 +1,9 @@
-{% extends "base.html" %}
+{% extends "base_guest.html" %}
 {% block title %}Saiu — Nexus Desk{% endblock %}
 {% block content %}
-<p>Você saiu. <a href="{% url 'login' %}">Entrar de novo</a></p>
+<h1 class="mb-2 text-xl font-semibold text-text">Você saiu</h1>
+<p class="mb-6 text-sm text-text-dim">Sua sessão foi encerrada.</p>
+<a href="{% url 'login' %}" class="btn-primary block w-full rounded-[var(--radius-control)] px-4 py-2 text-center text-sm font-medium text-white">
+    Entrar de novo
+</a>
 {% endblock %}

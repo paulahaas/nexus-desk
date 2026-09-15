@@ -1,11 +1,62 @@
-{% extends "base.html" %}
+{% extends "base_guest.html" %}
 {% block title %}Entrar — Nexus Desk{% endblock %}
 {% block content %}
-<h1>Nexus Desk</h1>
-<form method="post">
+<h1 class="mb-1 text-xl font-semibold text-text">Entrar</h1>
+<p class="mb-6 text-sm text-text-dim">Acesse sua conta ou entre com uma conta de demonstração.</p>
+
+<form method="post" class="space-y-4">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Entrar</button>
+    {% if form.errors %}
+    <p class="rounded-[var(--radius-control)] border border-sla-danger/30 bg-sla-danger-dim px-3 py-2 text-sm text-sla-danger">
+        Usuário ou senha inválidos.
+    </p>
+    {% endif %}
+    <div>
+        <label for="{{ form.username.id_for_label }}" class="mb-1 block text-xs font-medium text-text-dim">Usuário</label>
+        <input
+            type="text" name="username" id="{{ form.username.id_for_label }}" autofocus required
+            class="w-full rounded-[var(--radius-control)] border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder:text-text-faint focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        >
+    </div>
+    <div>
+        <label for="{{ form.password.id_for_label }}" class="mb-1 block text-xs font-medium text-text-dim">Senha</label>
+        <input
+            type="password" name="password" id="{{ form.password.id_for_label }}" required
+            class="w-full rounded-[var(--radius-control)] border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder:text-text-faint focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        >
+    </div>
+    <button type="submit" class="btn-primary w-full rounded-[var(--radius-control)] px-4 py-2 text-sm font-medium text-white">
+        Entrar
+    </button>
 </form>
-<p><a href="{% url 'password_reset' %}">Esqueci minha senha</a></p>
+
+<p class="mt-3 text-center text-xs">
+    <a href="{% url 'password_reset' %}" class="text-text-dim hover:text-accent">Esqueci minha senha</a>
+</p>
+
+{% if demo_mode %}
+<div class="mt-6 border-t border-border pt-6">
+    <p class="mb-3 text-center text-xs uppercase tracking-wide text-text-faint">Ou entre como</p>
+    <div class="grid grid-cols-3 gap-2">
+        <form method="post" action="{% url 'demo_login' role='user' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-[var(--radius-control)] border border-border bg-surface-2 py-2 text-xs font-medium text-text-dim transition-colors hover:border-accent hover:text-text">
+                Usuário
+            </button>
+        </form>
+        <form method="post" action="{% url 'demo_login' role='agent' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-[var(--radius-control)] border border-border bg-surface-2 py-2 text-xs font-medium text-text-dim transition-colors hover:border-accent hover:text-text">
+                Agente
+            </button>
+        </form>
+        <form method="post" action="{% url 'demo_login' role='admin' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-[var(--radius-control)] border border-border bg-surface-2 py-2 text-xs font-medium text-text-dim transition-colors hover:border-accent hover:text-text">
+                Admin
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

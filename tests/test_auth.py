@@ -45,7 +45,7 @@ def test_logout(client):
 
     response = client.post(reverse("logout"))
 
-    assert response.status_code == 302
+    assert response.status_code == 200  # renderiza logged_out.html direto
     home_response = client.get(reverse("home"))
     assert home_response.status_code == 302
 
@@ -80,3 +80,34 @@ def test_login_is_rate_limited_after_repeated_failures(client):
     response = client.post(reverse("login"), {"username": "alvo", "password": "errada"})
 
     assert response.status_code == 429
+
+
+@pytest.mark.django_db
+class TestDemoLogin:
+    @override_settings(DEMO_MODE=True)
+    def test_logs_in_as_the_fixed_demo_account_for_the_role(self, client):
+        UserFactory(username="admin", role="ADMIN")
+
+        response = client.post(reverse("demo_login", kwargs={"role": "admin"}))
+
+        assert response.status_code == 302
+        assert response.url == reverse("home")
+        home = client.get(reverse("home"))
+        assert home.wsgi_request.user.username == "admin"
+
+    @override_settings(DEMO_MODE=True)
+    def test_unknown_role_is_404(self, client):
+        response = client.post(reverse("demo_login", kwargs={"role": "superhacker"}))
+        assert response.status_code == 404
+
+    @override_settings(DEMO_MODE=True)
+    def test_get_is_not_allowed(self, client):
+        UserFactory(username="admin", role="ADMIN")
+        response = client.get(reverse("demo_login", kwargs={"role": "admin"}))
+        assert response.status_code == 404
+
+    @override_settings(DEMO_MODE=False)
+    def test_disabled_when_demo_mode_is_off(self, client):
+        UserFactory(username="admin", role="ADMIN")
+        response = client.post(reverse("demo_login", kwargs={"role": "admin"}))
+        assert response.status_code == 404

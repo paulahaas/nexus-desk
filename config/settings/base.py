@@ -73,6 +73,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.demo_mode",
             ],
         },
     },
@@ -100,9 +101,12 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+# Storage com manifest (hash no nome do arquivo, exige collectstatic) só em
+# produção — ver prod.py. Em dev/test isso quebraria o {% static %} sem
+# rodar collectstatic antes.
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
@@ -111,10 +115,16 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Portfólio público: login em 1 clique com as contas do seed_demo, pra
+# quem abre o projeto não precisar de credencial nenhuma. Só afeta as
+# contas fixas listadas em accounts.views.DEMO_ACCOUNTS.
+DEMO_MODE = env.bool("DEMO_MODE", default=True)
+
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "login"
+# Sem LOGOUT_REDIRECT_URL de propósito: LogoutView renderiza
+# registration/logged_out.html em vez de pular direto pro login.
 
 # django-axes: bloqueia tentativas de login após 5 falhas por 1h.
 AXES_FAILURE_LIMIT = 5
